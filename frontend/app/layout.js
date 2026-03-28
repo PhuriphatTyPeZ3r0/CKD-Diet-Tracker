@@ -5,6 +5,21 @@ import Header from '../components/Header';
 export const metadata = {
   title: "CKD Diet Tracker",
   description: "ระบบค้นหาและบันทึกอาหารสำหรับผู้ป่วยโรคไตเรื้อรังระยะที่ 3",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "CKD Diet Tracker",
+  },
+  formatDetection: {
+    telephone: false,
+  },
+};
+
+export const viewport = {
+  themeColor: "#2563eb",
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
 };
 
 export default function RootLayout({ children }) {
