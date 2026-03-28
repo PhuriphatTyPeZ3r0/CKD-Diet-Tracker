@@ -1,17 +1,20 @@
 'use client';
 
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 
 const DateContext = createContext();
 
 export const DateProvider = ({ children }) => {
-    const getNow = () => {
-        const now = new Date();
-        const offset = now.getTimezoneOffset() * 60000;
-        return new Date(now - offset).toISOString().slice(0, 16);
-    };
+    const [selectedDate, setSelectedDate] = useState('');
 
-    const [selectedDate, setSelectedDate] = useState(getNow());
+    useEffect(() => {
+        const getNow = () => {
+            const now = new Date();
+            const offset = now.getTimezoneOffset() * 60000;
+            return new Date(now - offset).toISOString().slice(0, 16);
+        };
+        setSelectedDate(getNow());
+    }, []);
 
     return (
         <DateContext.Provider value={{ selectedDate, setSelectedDate }}>
