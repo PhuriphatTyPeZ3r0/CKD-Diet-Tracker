@@ -1,6 +1,9 @@
 const supabase = require('../config/supabase');
 
 async function getLogsAndCalculateMacros(userId, date) {
+    // Extract date part YYYY-MM-DD if date contains time
+    const datePart = date.split('T')[0];
+    
     const { data: logs, error } = await supabase
         .from('day_eating')
         .select(`
@@ -11,8 +14,9 @@ async function getLogsAndCalculateMacros(userId, date) {
             )
         `)
         .eq('userid', userId)
-        .eq('eatdate', date)
-        .order('createdat', { ascending: false });
+        .gte('eatdate', `${datePart}T00:00:00`)
+        .lte('eatdate', `${datePart}T23:59:59`)
+        .order('eatdate', { ascending: false });
 
     if (error) {
         throw error;

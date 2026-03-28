@@ -53,6 +53,19 @@ export default function Home() {
     }
   }, [foods]);
 
+  // Date Formatting Helper
+  const formatDisplayDate = (dateString) => {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    return new Intl.DateTimeFormat('th-TH', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    }).format(date);
+  };
+
   const fetchFoods = async () => {
     try {
       setLoading(true);
@@ -267,7 +280,7 @@ export default function Home() {
         <div className="bg-white p-5 rounded-xl shadow-sm border border-gray-100 h-fit">
             <h3 className="font-bold text-gray-800 mb-4 flex justify-between items-center">
                  <span>Today's Log</span>
-                 <span className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">{selectedDate}</span>
+                 <span className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">{formatDisplayDate(selectedDate)}</span>
             </h3>
             
             {dailyLogs.length === 0 ? (

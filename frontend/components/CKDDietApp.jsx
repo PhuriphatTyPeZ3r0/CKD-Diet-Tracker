@@ -145,7 +145,7 @@ const STATUS_LABELS = {
 function getTodayInputValue() {
   const now = new Date();
   const timezoneOffset = now.getTimezoneOffset() * 60 * 1000;
-  return new Date(now.getTime() - timezoneOffset).toISOString().split("T")[0];
+  return new Date(now.getTime() - timezoneOffset).toISOString().slice(0, 16);
 }
 
 function formatThaiDate(dateValue) {
@@ -153,12 +153,14 @@ function formatThaiDate(dateValue) {
     return "กำลังตั้งค่าวันที่...";
   }
 
-  const date = new Date(`${dateValue}T00:00:00`);
+  const date = new Date(dateValue);
   return new Intl.DateTimeFormat("th-TH", {
     weekday: "long",
     year: "numeric",
     month: "long",
     day: "numeric",
+    hour: "numeric",
+    minute: "numeric"
   }).format(date);
 }
 
@@ -379,11 +381,11 @@ export default function CKDDietApp() {
 
           <div className="flex w-full rounded-lg bg-slate-100 p-1 sm:w-auto">
             <input
-              type="date"
+              type="datetime-local"
               value={selectedDate}
               onChange={(event) => setSelectedDate(event.target.value)}
               className="w-full border-none bg-transparent px-2 text-sm font-medium text-slate-700 outline-none"
-              aria-label="เลือกวันที่สำหรับบันทึกอาหาร"
+              aria-label="เลือกวันที่และเวลาสำหรับบันทึกอาหาร"
             />
           </div>
         </div>
