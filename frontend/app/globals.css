@@ -1,0 +1,39 @@
+@import "tailwindcss";
+
+@theme {
+  --animate-popup-in: popup_in 0.25s ease-out;
+
+  @keyframes popup_in {
+    0% {
+      opacity: 0;
+      transform: scale(0.96);
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+}
+
+:root {
+  color-scheme: light;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+}
+
+button,
+input,
+select {
+  font: inherit;
+}
