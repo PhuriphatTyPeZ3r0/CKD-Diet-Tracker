@@ -4,10 +4,10 @@ import { useLanguage } from '../context/LanguageContext';
 
 const FoodDetailsModal = ({ food, isOpen, onClose, onAddLog }) => {
     const { t } = useLanguage();
-    if (!isOpen || !food) return null;
-
     const [portion, setPortion] = useState(1);
     const [mealType, setMealType] = useState('Breakfast');
+
+    if (!isOpen || !food) return null;
 
     const handleAdd = () => {
         onAddLog({ food, portion, mealType });
