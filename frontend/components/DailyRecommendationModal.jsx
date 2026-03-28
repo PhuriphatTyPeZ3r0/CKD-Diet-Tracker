@@ -1,49 +1,56 @@
 import React, { useEffect, useState } from 'react';
-import { X, ExternalLink } from 'lucide-react';
+import { X, ExternalLink, Sparkles } from 'lucide-react';
+import { useLanguage } from '../context/LanguageContext';
 
 const DailyRecommendationModal = ({ food, isOpen, onClose, onAddLog }) => {
+    const { t } = useLanguage();
     if (!isOpen || !food) return null;
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-            <div className="bg-white rounded-xl shadow-2xl p-6 w-full max-w-md m-4 transform transition-all scale-100">
-                <div className="flex justify-between items-center mb-4">
-                    <h2 className="text-xl font-bold text-gray-800 flex items-center gap-2">
-                        🌟 Recommended Today
-                    </h2>
-                    <button onClick={onClose} className="p-1 hover:bg-gray-100 rounded-full">
-                        <X size={24} className="text-gray-500" />
-                    </button>
-                </div>
-
-                <div className="flex flex-col items-center mb-6">
-                    <div className="text-6xl mb-4">{food.IconImage || '🍎'}</div>
-                    <h3 className="text-2xl font-bold text-gray-900">{food.FoodName}</h3>
-                    <div className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium mt-2">
-                        Safe Choice
-                    </div>
-                </div>
-
-                <p className="text-gray-600 mb-6 text-center">
-                    {food.PhysiologyReason || "This food is low in potassium and phosphorus, making it an excellent choice for your diet today."}
-                </p>
-
-                <div className="flex gap-3">
+        <div className="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300">
+            <div className="bg-white rounded-3xl shadow-2xl w-full max-w-sm overflow-hidden animate-in zoom-in-95 duration-300">
+                <div className="relative bg-gradient-to-br from-emerald-500 to-teal-600 p-8 text-center text-white">
                     <button 
-                        onClick={onClose}
-                        className="flex-1 py-2 px-4 border border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-gray-50"
+                        onClick={onClose} 
+                        className="absolute right-4 top-4 p-2 bg-white/20 hover:bg-white/30 rounded-full transition-colors backdrop-blur-md"
                     >
-                        Close
+                        <X size={20} />
                     </button>
-                    {onAddLog && (
+                    <div className="inline-flex p-3 bg-white/20 rounded-2xl backdrop-blur-md mb-4 animate-bounce">
+                        <Sparkles size={32} />
+                    </div>
+                    <h2 className="text-2xl font-black mb-1">{t('dailyRecommendation')}</h2>
+                    <p className="text-emerald-50 text-sm font-medium opacity-90">{t('safeToEat')}</p>
+                </div>
+
+                <div className="p-8 text-center">
+                    <div className="text-7xl mb-6 drop-shadow-lg">{food.IconImage || '🍎'}</div>
+                    <h3 className="text-3xl font-bold text-slate-800 mb-2">{food.FoodName}</h3>
+                    <div className="inline-flex bg-emerald-100 text-emerald-700 px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-widest mb-6 border border-emerald-200">
+                        {t('safe')}
+                    </div>
+
+                    <p className="text-slate-500 mb-8 text-sm leading-relaxed font-medium">
+                        {food.PhysiologyReason || t('safeToEatDesc')}
+                    </p>
+
+                    <div className="grid grid-cols-2 gap-3">
                         <button 
-                            onClick={() => { onAddLog(food); onClose(); }}
-                            className="flex-1 py-2 px-4 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 flex items-center justify-center gap-2"
+                            onClick={onClose}
+                            className="py-3.5 px-6 rounded-2xl text-slate-500 font-bold hover:bg-slate-50 transition-colors border border-slate-100"
                         >
-                            <ExternalLink size={18} />
-                            Add to Log
+                            {t('close')}
                         </button>
-                    )}
+                        {onAddLog && (
+                            <button 
+                                onClick={() => { onAddLog(food); onClose(); }}
+                                className="py-3.5 px-6 bg-emerald-500 text-white rounded-2xl font-bold hover:bg-emerald-600 flex items-center justify-center gap-2 shadow-lg shadow-emerald-200 transition-all active:scale-[0.98]"
+                            >
+                                <ExternalLink size={18} strokeWidth={3} />
+                                {t('add')}
+                            </button>
+                        )}
+                    </div>
                 </div>
             </div>
         </div>

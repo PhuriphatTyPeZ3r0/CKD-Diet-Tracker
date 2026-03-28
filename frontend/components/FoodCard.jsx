@@ -1,7 +1,9 @@
 import React from 'react';
 import { AlertTriangle, CheckCircle, XCircle } from 'lucide-react';
+import { useLanguage } from '../context/LanguageContext';
 
 const FoodCard = ({ food, onClick }) => {
+    const { t } = useLanguage();
     const { FoodName, Category, Status, IconImage, PhysiologyReason } = food;
 
     const getStatusColor = (status) => {
@@ -22,22 +24,33 @@ const FoodCard = ({ food, onClick }) => {
         }
     };
 
+    const getTranslatedCategory = (cat) => {
+        switch (cat) {
+            case 'โปรตีน': return t('catProtein');
+            case 'คาร์โบไฮเดรต': return t('catCarbs');
+            case 'ผัก': return t('catVeg');
+            case 'ผลไม้': return t('catFruit');
+            case 'เครื่องปรุง': return t('catCondiment');
+            default: return cat;
+        }
+    };
+
     return (
         <div 
             onClick={onClick}
-            className={`border rounded-lg p-4 cursor-pointer hover:shadow-md transition-shadow flex flex-col sm:flex-row items-start sm:items-center justify-between bg-white gap-3 sm:gap-0`}
+            className={`border rounded-lg p-4 cursor-pointer hover:shadow-md transition-shadow flex flex-col sm:flex-row items-start sm:items-center justify-between bg-white gap-3 sm:gap-0 active:scale-[0.98]`}
         >
             <div className="flex items-center space-x-4">
                 <div className="text-3xl">{IconImage || '🍽️'}</div>
                 <div>
                     <h3 className="font-semibold text-lg line-clamp-1">{FoodName}</h3>
-                    <p className="text-sm text-gray-500">{Category}</p>
+                    <p className="text-sm text-gray-500">{getTranslatedCategory(Category)}</p>
                 </div>
             </div>
             
-            <div className={`flex items-center space-x-1 px-2 py-1 rounded-full text-xs font-medium border self-start sm:self-auto ${getStatusColor(Status)}`}>
+            <div className={`flex items-center space-x-1 px-2 py-1 rounded-full text-xs font-bold border self-start sm:self-auto uppercase tracking-wide ${getStatusColor(Status)}`}>
                 {getStatusIcon(Status)}
-                <span className="capitalize">{Status}</span>
+                <span>{t(Status.toLowerCase())}</span>
             </div>
         </div>
     );

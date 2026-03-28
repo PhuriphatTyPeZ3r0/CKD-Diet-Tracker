@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Search, Filter, AlertTriangle, ChevronRight, PieChart } from 'lucide-react';
 import { useDate } from '../context/DateContext';
+import { useLanguage } from '../context/LanguageContext';
 import FoodCard from '../components/FoodCard';
 import FoodDetailsModal from '../components/FoodDetailsModal';
 import DailyRecommendationModal from '../components/DailyRecommendationModal';
@@ -11,6 +12,7 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 
 export default function Home() {
   const { selectedDate } = useDate();
+  const { language, t } = useLanguage();
   const [foods, setFoods] = useState([]);
   const [dailyLogs, setDailyLogs] = useState([]);
   const [macros, setMacros] = useState({ totalProtein: 0, totalSodium: 0 });
@@ -57,7 +59,7 @@ export default function Home() {
   const formatDisplayDate = (dateString) => {
     if (!dateString) return '';
     const date = new Date(dateString);
-    return new Intl.DateTimeFormat('th-TH', {
+    return new Intl.DateTimeFormat(language === 'th' ? 'th-TH' : 'en-US', {
       year: 'numeric',
       month: 'short',
       day: 'numeric',
@@ -99,8 +101,8 @@ export default function Home() {
     const hasHighPotassium = logs.some(log => log.PotassiumLevel === 'High');
     const hasHighPhosphorus = logs.some(log => log.PhosphorusLevel === 'High');
 
-    if (hasHighPotassium) alerts.push("High Potassium intake detected today. Please monitor your fruit/vegetable intake.");
-    if (hasHighPhosphorus) alerts.push("High Phosphorus intake detected. Avoid dairy, nuts, and processed meats.");
+    if (hasHighPotassium) alerts.push(t('healthAlertPotassium'));
+    if (hasHighPhosphorus) alerts.push(t('healthAlertPhosphorus'));
     
     setRiskAlerts(alerts);
   };
@@ -153,14 +155,14 @@ export default function Home() {
       {/* Left Column: Food Search & List */}
       <div className="lg:col-span-2 space-y-6">
         <section className="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
-            <h2 className="text-xl font-bold mb-4 text-gray-800">Food Database</h2>
+            <h2 className="text-xl font-bold mb-4 text-gray-800">{t('foodDatabase')}</h2>
             
             <div className="flex flex-col md:flex-row gap-4 mb-6">
                 <div className="relative flex-1">
                     <Search className="absolute left-3 top-2.5 text-gray-400" size={20} />
                     <input 
                         type="text" 
-                        placeholder="Search food (e.g. egg, fish)..." 
+                        placeholder={t('searchPlaceholder')} 
                         className="pl-10 pr-4 py-2 w-full border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
@@ -170,28 +172,28 @@ export default function Home() {
                     <div className="relative flex-1 sm:flex-none">
                         <Filter className="absolute left-3 top-2.5 text-gray-400" size={16} />
                         <select 
-                            className="pl-9 pr-8 py-2 w-full border border-gray-200 rounded-lg bg-white appearance-none cursor-pointer hover:border-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="pl-9 pr-8 py-2 w-full border border-gray-200 rounded-lg bg-white appearance-none cursor-pointer hover:border-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium"
                             value={categoryFilter}
                             onChange={(e) => setCategoryFilter(e.target.value)}
                         >
-                            <option value="All">All Categories</option>
-                            <option value="โปรตีน">Protein</option>
-                            <option value="คาร์โบไฮเดรต">Carbs</option>
-                            <option value="ผัก">Vegetables</option>
-                            <option value="ผลไม้">Fruits</option>
-                            <option value="เครื่องปรุง">Condiments</option>
+                            <option value="All">{t('allCategories')}</option>
+                            <option value="โปรตีน">{t('catProtein')}</option>
+                            <option value="คาร์โบไฮเดรต">{t('catCarbs')}</option>
+                            <option value="ผัก">{t('catVeg')}</option>
+                            <option value="ผลไม้">{t('catFruit')}</option>
+                            <option value="เครื่องปรุง">{t('catCondiment')}</option>
                         </select>
                     </div>
                     
                     <select 
-                        className="px-4 py-2 w-full sm:w-auto border border-gray-200 rounded-lg bg-white cursor-pointer hover:border-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="px-4 py-2 w-full sm:w-auto border border-gray-200 rounded-lg bg-white cursor-pointer hover:border-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium"
                         value={statusFilter}
                         onChange={(e) => setStatusFilter(e.target.value)}
                     >
-                        <option value="All">All Status</option>
-                        <option value="safe">Safe (Green)</option>
-                        <option value="warning">Warning (Yellow)</option>
-                        <option value="danger">Danger (Red)</option>
+                        <option value="All">{t('allStatus')}</option>
+                        <option value="safe">{t('statusSafe')}</option>
+                        <option value="warning">{t('statusWarning')}</option>
+                        <option value="danger">{t('statusDanger')}</option>
                     </select>
                 </div>
             </div>
@@ -199,7 +201,7 @@ export default function Home() {
             {loading ? (
                 <div className="flex justify-center items-center py-20 text-blue-500 animate-pulse">
                     <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mr-3"></div>
-                    Loading food data...
+                    {t('loading')}
                 </div>
             ) : error ? (
                 <div className="p-10 text-center text-red-500 bg-red-50 rounded-xl border border-red-100">
@@ -216,7 +218,7 @@ export default function Home() {
                     ))}
                     {filteredFoods.length === 0 && (
                         <div className="col-span-full text-center py-16 text-gray-400 bg-gray-50 rounded-xl border border-dashed border-gray-200">
-                            No foods found matching your filters.
+                            {t('noFoodsFound')}
                         </div>
                     )}
                 </div>
@@ -232,7 +234,7 @@ export default function Home() {
                 <div className="flex items-start">
                     <AlertTriangle className="text-red-500 mr-2 mt-0.5 flex-shrink-0" size={20} />
                     <div>
-                        <h4 className="font-bold text-red-700">Health Warning</h4>
+                        <h4 className="font-bold text-red-700">{t('healthWarning')}</h4>
                         {riskAlerts.map((alert, idx) => (
                             <p key={idx} className="text-sm text-red-600 mt-1">{alert}</p>
                         ))}
@@ -244,14 +246,14 @@ export default function Home() {
         {/* Macro Progress */}
         <div className="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
             <h3 className="font-bold text-gray-800 mb-4 flex items-center gap-2">
-                <PieChart size={20} className="text-blue-500"/> Daily Nutrition
-                <span className="text-xs font-normal text-gray-400 ml-auto">Goal: {proteinGoal}g Protein</span>
+                <PieChart size={20} className="text-blue-500"/> {t('dailyNutrition')}
+                <span className="text-xs font-normal text-gray-400 ml-auto">{t('goal')}: {proteinGoal}{t('unitG')} {t('protein')}</span>
             </h3>
             
             <div className="mb-6">
                 <div className="flex justify-between text-sm mb-2 items-end">
-                    <span className="font-medium text-gray-600">Total Protein</span>
-                    <span className="font-bold text-2xl text-blue-600">{macros.totalProtein.toFixed(1)} <span className="text-sm text-gray-400 font-normal">/ {proteinGoal}g</span></span>
+                    <span className="font-medium text-gray-600">{t('totalProtein')}</span>
+                    <span className="font-bold text-2xl text-blue-600">{macros.totalProtein.toFixed(1)} <span className="text-sm text-gray-400 font-normal">/ {proteinGoal}{t('unitG')}</span></span>
                 </div>
                 <div className="w-full bg-gray-100 rounded-full h-3 overflow-hidden">
                     <div 
@@ -260,17 +262,17 @@ export default function Home() {
                     ></div>
                 </div>
                 <p className="text-xs text-gray-400 mt-2 text-right">
-                    {proteinProgress.toFixed(0)}% of daily quota consumed
+                    {proteinProgress.toFixed(0)}% {t('consumed')}
                 </p>
             </div>
 
             <div className="grid grid-cols-2 gap-4 pt-4 border-t border-gray-100">
                  <div className="text-center">
-                    <div className="text-xs text-gray-500 mb-1">Sodium Intake</div>
-                    <div className="font-bold text-gray-800 text-lg">{macros.totalSodium.toFixed(0)} <span className="text-sm text-gray-400 font-normal">mg</span></div>
+                    <div className="text-xs text-gray-500 mb-1">{t('sodiumIntake')}</div>
+                    <div className="font-bold text-gray-800 text-lg">{macros.totalSodium.toFixed(0)} <span className="text-sm text-gray-400 font-normal">{t('unitMg')}</span></div>
                  </div>
                  <div className="text-center border-l border-gray-100">
-                    <div className="text-xs text-gray-500 mb-1">Items Logged</div>
+                    <div className="text-xs text-gray-500 mb-1">{t('itemsLogged')}</div>
                     <div className="font-bold text-gray-800 text-lg">{dailyLogs.length}</div>
                  </div>
             </div>
@@ -279,14 +281,14 @@ export default function Home() {
         {/* Daily Log List */}
         <div className="bg-white p-5 rounded-xl shadow-sm border border-gray-100 h-fit">
             <h3 className="font-bold text-gray-800 mb-4 flex justify-between items-center">
-                 <span>Today's Log</span>
+                 <span>{t('todayLog')}</span>
                  <span className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">{formatDisplayDate(selectedDate)}</span>
             </h3>
             
             {dailyLogs.length === 0 ? (
                 <div className="text-center py-12 text-gray-400 text-sm bg-gray-50 rounded-lg border border-dashed border-gray-200">
-                    No foods logged yet.<br/>
-                    Select a food from the list to add.
+                    {t('noLogsYet')}<br/>
+                    {t('selectFoodToAdd')}
                 </div>
             ) : (
                 <div className="space-y-3">
@@ -299,15 +301,19 @@ export default function Home() {
                                 <div>
                                     <h4 className="font-bold text-sm text-gray-800">{log.FoodName}</h4>
                                     <div className="flex items-center gap-2 text-xs text-gray-500">
-                                        <span className="bg-gray-100 px-1.5 py-0.5 rounded text-gray-600">{log.MealType}</span>
+                                        <span className="bg-gray-100 px-1.5 py-0.5 rounded text-gray-600">
+                                            {log.MealType === 'Breakfast' ? t('breakfast') : 
+                                             log.MealType === 'Lunch' ? t('lunch') : 
+                                             log.MealType === 'Dinner' ? t('dinner') : t('snack')}
+                                        </span>
                                         <span>•</span>
-                                        <span>{log.Portion} portion</span>
+                                        <span>{log.Portion} {t('portion')}</span>
                                     </div>
                                 </div>
                             </div>
                             <div className="text-right">
-                                <div className="text-sm font-bold text-blue-600">{((log.ProteinGram || 0) * log.Portion).toFixed(1)}g P</div>
-                                <div className="text-[10px] text-gray-400">{log.SodiumMg || 0}mg Na</div>
+                                <div className="text-sm font-bold text-blue-600">{((log.ProteinGram || 0) * log.Portion).toFixed(1)}{t('unitG')} P</div>
+                                <div className="text-[10px] text-gray-400">{log.SodiumMg || 0}{t('unitMg')} Na</div>
                             </div>
                         </div>
                     ))}
