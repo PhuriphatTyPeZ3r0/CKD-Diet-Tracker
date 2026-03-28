@@ -64,6 +64,7 @@ const translations = {
         warningToEatTitle: "ทานได้แต่ต้องระวังปริมาณ",
         dangerToEatTitle: "อันตรายต่อไต ห้ามทานเด็ดขาด",
         addLogSuccess: "บันทึกเรียบร้อยแล้ว",
+        monitorIntakeCarefully: "โปรดติดตามปริมาณการรับประทานอย่างระมัดระวังตามคำแนะนำของแพทย์",
         unitG: "กรัม",
         unitMg: "มก.",
         language: "ภาษา"
@@ -129,6 +130,7 @@ const translations = {
         warningToEatTitle: "Eat with caution/limited amount",
         dangerToEatTitle: "Dangerous to kidneys, strictly avoid",
         addLogSuccess: "Log added successfully",
+        monitorIntakeCarefully: "Monitor your intake carefully based on medical advice.",
         unitG: "g",
         unitMg: "mg",
         language: "Language"
