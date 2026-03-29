@@ -7,6 +7,7 @@ import { useLanguage } from '../context/LanguageContext';
 import FoodCard from '../components/FoodCard';
 import FoodDetailsModal from '../components/FoodDetailsModal';
 import DailyRecommendationModal from '../components/DailyRecommendationModal';
+import { supabase } from '../lib/supabase';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 
@@ -18,6 +19,7 @@ export default function Home() {
   const [macros, setMacros] = useState({ totalProtein: 0, totalSodium: 0 });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [session, setSession] = useState(null);
 
   // Filter States
   const [searchTerm, setSearchTerm] = useState('');
@@ -34,14 +36,32 @@ export default function Home() {
   const [riskAlerts, setRiskAlerts] = useState([]);
 
   useEffect(() => {
+    // Initial fetch
     fetchFoods();
+
+    // Check current session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+    });
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
 
   useEffect(() => {
-    if (selectedDate) {
-      fetchDailyLogs(selectedDate);
+    if (selectedDate && session?.user?.id) {
+      fetchDailyLogs(selectedDate, session.user.id);
+    } else if (selectedDate && !session) {
+      // For testing/mocking if not logged in, but ideally we show a login prompt
+      // fetchDailyLogs(selectedDate, '00000000-0000-0000-0000-000000000000');
+      setDailyLogs([]);
+      setMacros({ totalProtein: 0, totalSodium: 0 });
     }
-  }, [selectedDate]);
+  }, [selectedDate, session]);
 
   // Daily Recommendation Logic
   useEffect(() => {
@@ -82,9 +102,9 @@ export default function Home() {
     }
   };
 
-  const fetchDailyLogs = async (date) => {
+  const fetchDailyLogs = async (date, userId) => {
     try {
-      const res = await fetch(`${API_URL}/api/eat-logs?userId=1&date=${date}`);
+      const res = await fetch(`${API_URL}/api/eat-logs?userId=${userId}&date=${date}`);
       if (!res.ok) throw new Error('Failed to fetch logs');
       const data = await res.json();
       setDailyLogs(data.logs);
@@ -108,12 +128,17 @@ export default function Home() {
   };
 
   const handleAddLog = async ({ food, portion, mealType }) => {
+     if (!session?.user?.id) {
+       alert('Please log in to save your logs');
+       return;
+     }
+
      try {
        const res = await fetch(`${API_URL}/api/eat-logs`, {
          method: 'POST',
          headers: { 'Content-Type': 'application/json' },
          body: JSON.stringify({
-           UserId: 1,
+           UserId: session.user.id,
            EatDate: selectedDate,
            FoodId: food.FoodId,
            MealType: mealType,

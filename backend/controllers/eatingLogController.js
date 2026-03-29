@@ -13,7 +13,7 @@ async function getLogsAndCalculateMacros(userId, date) {
                 ProteinGram:proteingram, SodiumMg:sodiummg, PotassiumLevel:potassiumlevel, PhosphorusLevel:phosphoruslevel
             )
         `)
-        .eq('userid', userId)
+        .eq('account_id', userId)
         .gte('eatdate', `${datePart}T00:00:00`)
         .lte('eatdate', `${datePart}T23:59:59`)
         .order('eatdate', { ascending: false });
@@ -36,7 +36,7 @@ exports.createLog = async (req, res) => {
 
         const { data: newLogData, error: insertError } = await supabase
             .from('day_eating')
-            .insert([{ userid: UserId, eatdate: EatDate, foodid: FoodId, mealtype: MealType, portion: Portion }])
+            .insert([{ account_id: UserId, eatdate: EatDate, foodid: FoodId, mealtype: MealType, portion: Portion }])
             .select('LogId:logid')
             .single();
 

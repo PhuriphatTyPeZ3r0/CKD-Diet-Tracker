@@ -1,13 +1,42 @@
 'use client';
 
-import React from 'react';
-import { Calendar, Globe } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { Calendar, Globe, LogIn, LogOut, User } from 'lucide-react';
 import { useDate } from '../context/DateContext';
 import { useLanguage } from '../context/LanguageContext';
+import { supabase } from '../lib/supabase';
 
 const Header = () => {
     const { selectedDate, setSelectedDate } = useDate();
     const { language, toggleLanguage, t } = useLanguage();
+    const [session, setSession] = useState(null);
+
+    useEffect(() => {
+        supabase.auth.getSession().then(({ data: { session } }) => {
+            setSession(session);
+        });
+
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+            setSession(session);
+        });
+
+        return () => subscription.unsubscribe();
+    }, []);
+
+    const handleLogin = async () => {
+        const { error } = await supabase.auth.signInWithOAuth({
+            provider: 'google',
+            options: {
+                redirectTo: window.location.origin
+            }
+        });
+        if (error) alert(error.message);
+    };
+
+    const handleLogout = async () => {
+        const { error } = await supabase.auth.signOut();
+        if (error) alert(error.message);
+    };
 
     return (
         <header className="sticky top-0 z-50 bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between shadow-sm">
@@ -31,7 +60,6 @@ const Header = () => {
                 </button>
 
                 <div className="flex items-center space-x-2">
-                    <span className="text-sm text-gray-500 font-medium hidden md:inline">{t('dateTime')}:</span>
                     <input
                         type="datetime-local"
                         value={selectedDate}
@@ -39,6 +67,33 @@ const Header = () => {
                         className="border border-gray-300 rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm font-medium"
                     />
                 </div>
+
+                {session ? (
+                    <div className="flex items-center gap-2">
+                        {session.user.user_metadata?.avatar_url ? (
+                            <img src={session.user.user_metadata.avatar_url} alt="User" className="w-8 h-8 rounded-full border border-gray-200" />
+                        ) : (
+                            <div className="bg-gray-100 p-2 rounded-full border border-gray-200">
+                                <User size={16} className="text-gray-500" />
+                            </div>
+                        )}
+                        <button 
+                            onClick={handleLogout}
+                            className="p-2 text-gray-500 hover:text-red-500 transition-colors"
+                            title="Logout"
+                        >
+                            <LogOut size={20} />
+                        </button>
+                    </div>
+                ) : (
+                    <button 
+                        onClick={handleLogin}
+                        className="flex items-center gap-2 bg-white border border-gray-200 px-3 py-1.5 rounded-lg hover:bg-gray-50 transition-all text-sm font-bold text-gray-700 shadow-sm active:scale-95"
+                    >
+                        <LogIn size={16} className="text-blue-600" />
+                        <span>Login</span>
+                    </button>
+                )}
             </div>
         </header>
     );
