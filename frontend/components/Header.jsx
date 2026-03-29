@@ -6,7 +6,10 @@ import { useDate } from '../context/DateContext';
 import { useLanguage } from '../context/LanguageContext';
 import { supabase } from '../lib/supabase';
 
+import { useRouter } from 'next/navigation';
+
 const Header = () => {
+    const router = useRouter();
     const { selectedDate, setSelectedDate } = useDate();
     const { language, toggleLanguage, t } = useLanguage();
     const [session, setSession] = useState(null);
@@ -40,7 +43,7 @@ const Header = () => {
 
     return (
         <header className="sticky top-0 z-50 bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between shadow-sm">
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-2 cursor-pointer" onClick={() => router.push('/')}>
                 <div className="bg-blue-600 text-white p-2 rounded-lg">
                     <Calendar size={20} className="sm:w-6 sm:h-6" />
                 </div>
@@ -70,13 +73,23 @@ const Header = () => {
 
                 {session ? (
                     <div className="flex items-center gap-2">
-                        {session.user.user_metadata?.avatar_url ? (
-                            <img src={session.user.user_metadata.avatar_url} alt="User" className="w-8 h-8 rounded-full border border-gray-200" />
-                        ) : (
-                            <div className="bg-gray-100 p-2 rounded-full border border-gray-200">
-                                <User size={16} className="text-gray-500" />
-                            </div>
-                        )}
+                        <button 
+                            onClick={() => router.push('/profile')}
+                            className="focus:outline-none active:scale-95 transition-transform"
+                        >
+                            {session.user.user_metadata?.avatar_url ? (
+                                <img 
+                                    src={session.user.user_metadata.avatar_url} 
+                                    alt="User" 
+                                    referrerPolicy="no-referrer"
+                                    className="w-8 h-8 rounded-full border border-gray-200 object-cover hover:border-blue-500 transition-colors" 
+                                />
+                            ) : (
+                                <div className="bg-gray-100 p-2 rounded-full border border-gray-200 hover:border-blue-500 transition-colors flex items-center justify-center w-8 h-8">
+                                    <User size={16} className="text-gray-500" />
+                                </div>
+                            )}
+                        </button>
                         <button 
                             onClick={handleLogout}
                             className="p-2 text-gray-500 hover:text-red-500 transition-colors"
